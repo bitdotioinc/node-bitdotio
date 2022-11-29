@@ -1,0 +1,28 @@
+{
+  "name": "node-bitdotio",
+  "version": "0.0.0",
+  "description": "Node SDK for bit.io",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitdotioinc/node-bitdotio.git"
+  },
+  "author": "bit.io Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bitdotioinc/node-bitdotio/issues"
+  },
+  "homepage": "https://github.com/bitdotioinc/node-bitdotio#readme",
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "@api/bitdotio": "file:.api/apis/bitdotio"
+  }
+}
