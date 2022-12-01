@@ -1,6 +1,6 @@
-import { splitDbName, validateToken } from "../lib/utils";
+import { pruneBody, splitDbName, validateToken } from "../lib/utils";
 
-describe("Utils module", () => {
+describe("splitDbName", () => {
   test("splitDbName base case", () => {
     const { username, db_name } = splitDbName("a/b");
     expect(username).toBe("a");
@@ -25,7 +25,9 @@ describe("Utils module", () => {
       expect(() => splitDbName(testCase)).toThrow("Invalid database name");
     });
   });
+});
 
+describe("validateToken", () => {
   test("validateToken ok", () => {
     expect(validateToken("v2_testtoken")).toBeUndefined();
   });
@@ -40,5 +42,14 @@ describe("Utils module", () => {
     testCases.forEach((testCase) => {
       expect(() => validateToken(testCase)).toThrow("Invalid token");
     });
+  });
+});
+
+describe("pruneBody", () => {
+  test("pruneBody", () => {
+    const data = { foo: 1, bar: undefined, baz: 2 };
+    const expected = { foo: 1, baz: 2};
+    pruneBody(data);
+    expect(data).toEqual(expected);
   });
 });

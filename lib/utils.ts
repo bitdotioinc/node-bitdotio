@@ -17,3 +17,11 @@ export function validateToken(token: string) {
     throw new Error("Invalid token");
   }
 }
+
+export function pruneBody(body: Record<string, any>) {
+  Object.keys(body).forEach((key) => {
+    if (body[key] === undefined) {
+      delete body[key];
+    }
+  });
+}
