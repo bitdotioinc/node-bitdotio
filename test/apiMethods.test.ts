@@ -85,3 +85,32 @@ describe("getDatabase", () => {
     }
   });
 });
+
+describe("createDatabase", () => {
+  const b = bitdotio("v2_testtoken");
+  test("createDatabase ok", async () => {
+    const expected = { foo: "bar" };
+    b._apiClient.create_db_v2beta_db__post = jest.fn(
+      mockApiMethod(200, expected),
+    );
+    const result = await b.createDatabase({ name: "my-db" });
+    expect(result).toBe(expected);
+  });
+  test("createDatabase error", async () => {
+    const status = 400;
+    const data = { error: "whoops" };
+    b._apiClient.create_db_v2beta_db__post = jest.fn(
+      mockApiMethod(status, data),
+    );
+    try {
+      await b.createDatabase({ name: "my-db", isPrivate: false });
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(e).toBeInstanceOf(ApiError);
+      if (e instanceof ApiError) {
+        expect(e.status).toBe(status);
+        expect(e.data).toBe(data);
+      }
+    }
+  });
+});

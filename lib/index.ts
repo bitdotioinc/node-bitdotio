@@ -1,5 +1,5 @@
 import { FetchResponse } from "api/dist/core";
-import { splitDbName, validateToken } from "./utils";
+import { pruneBody, splitDbName, validateToken } from "./utils";
 import { ApiError } from "./errors";
 
 type ApiMethodType<Args extends any[], Return> = (
@@ -39,6 +39,25 @@ function bitdotio(apiKey: string) {
     listDatabases: apiMethodWrapper(async () => {
       return apiClient.get_db_list_v2beta_db__get();
     }, "databases"),
+    createDatabase: apiMethodWrapper(
+      async ({
+        name,
+        isPrivate = true,
+        storageLimitBytes = undefined,
+      }: {
+        name: string;
+        isPrivate?: boolean;
+        storageLimitBytes?: number;
+      }) => {
+        return apiClient.create_db_v2beta_db__post(
+          pruneBody({
+            name,
+            is_private: isPrivate,
+            storage_limit_bytes: storageLimitBytes,
+          }),
+        );
+      },
+    ),
     getDatabase: apiMethodWrapper(async (dbName: string) => {
       return apiClient.get_db_v2beta_db__username___db_name__get(
         splitDbName(dbName),

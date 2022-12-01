@@ -24,4 +24,5 @@ export function pruneBody(body: Record<string, any>) {
       delete body[key];
     }
   });
+  return body;
 }

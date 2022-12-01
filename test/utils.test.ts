@@ -49,7 +49,8 @@ describe("pruneBody", () => {
   test("pruneBody", () => {
     const data = { foo: 1, bar: undefined, baz: 2 };
     const expected = { foo: 1, baz: 2};
-    pruneBody(data);
+    const result = pruneBody(data);
     expect(data).toEqual(expected);
+    expect(result).toBe(data);
   });
 });
