@@ -156,3 +156,43 @@ describe("updateDatabase", () => {
     }
   });
 });
+
+describe("deleteDatabase", () => {
+  const b = bitdotio("v2_testtoken");
+
+  test("deleteDatabase ok", async () => {
+    b._apiClient.delete_db_v2beta_db__username___db_name__delete = jest.fn(
+      mockApiMethod(200, {}),
+    );
+    const result = await b.deleteDatabase("my/db");
+    expect(result).toEqual({});
+  });
+  test("deleteDatabase invalid db name", async () => {
+    try {
+      await b.deleteDatabase("not a db name");
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+      if (e instanceof Error) {
+        expect(e.message).toBe("Invalid database name");
+      }
+    }
+  });
+  test("deleteDatabase error", async () => {
+    const status = 400;
+    const data = { error: "whoops" };
+    b._apiClient.delete_db_v2beta_db__username___db_name__delete = jest.fn(
+      mockApiMethod(status, data),
+    );
+    try {
+      await b.deleteDatabase("my/db");
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(e).toBeInstanceOf(ApiError);
+      if (e instanceof ApiError) {
+        expect(e.status).toBe(status);
+        expect(e.data).toBe(data);
+      }
+    }
+  });
+});

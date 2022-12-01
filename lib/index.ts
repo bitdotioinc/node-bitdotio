@@ -78,6 +78,11 @@ function bitdotio(apiKey: string) {
         );
       },
     ),
+    deleteDatabase: apiMethodWrapper(async (dbName: string) => {
+      return apiClient.delete_db_v2beta_db__username___db_name__delete(
+        splitDbName(dbName),
+      );
+    }),
   };
 }
 
