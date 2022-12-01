@@ -63,6 +63,21 @@ function bitdotio(apiKey: string) {
         splitDbName(dbName),
       );
     }),
+    updateDatabase: apiMethodWrapper(
+      async (
+        dbName: string,
+        options: {
+          name?: string;
+          isPrivate?: boolean;
+          storageLimitBytes?: number;
+        },
+      ) => {
+        return apiClient.update_db_v2beta_db__username___db_name__patch(
+          pruneBody(options),
+          splitDbName(dbName),
+        );
+      },
+    ),
   };
 }
 

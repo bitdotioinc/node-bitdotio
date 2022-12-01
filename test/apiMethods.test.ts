@@ -88,6 +88,7 @@ describe("getDatabase", () => {
 
 describe("createDatabase", () => {
   const b = bitdotio("v2_testtoken");
+
   test("createDatabase ok", async () => {
     const expected = { foo: "bar" };
     b._apiClient.create_db_v2beta_db__post = jest.fn(
@@ -104,6 +105,47 @@ describe("createDatabase", () => {
     );
     try {
       await b.createDatabase({ name: "my-db", isPrivate: false });
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(e).toBeInstanceOf(ApiError);
+      if (e instanceof ApiError) {
+        expect(e.status).toBe(status);
+        expect(e.data).toBe(data);
+      }
+    }
+  });
+});
+
+describe("updateDatabase", () => {
+  const b = bitdotio("v2_testtoken");
+
+  test("updateDatabase ok", async () => {
+    const expected = { foo: "bar" };
+    b._apiClient.update_db_v2beta_db__username___db_name__patch = jest.fn(
+      mockApiMethod(200, expected),
+    );
+    const result = await b.updateDatabase("my/db", { isPrivate: false });
+    expect(result).toBe(expected);
+  });
+  test("updateDatabase invalid db name", async () => {
+    try {
+      await b.updateDatabase("not a db name", { name: "boop" });
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+      if (e instanceof Error) {
+        expect(e.message).toBe("Invalid database name");
+      }
+    }
+  });
+  test("updateDatabase error", async () => {
+    const status = 400;
+    const data = { error: "whoops" };
+    b._apiClient.update_db_v2beta_db__username___db_name__patch = jest.fn(
+      mockApiMethod(status, data),
+    );
+    try {
+      await b.updateDatabase("my/db", { storageLimitBytes: 12345 });
       expect(true).toBe(false);
     } catch (e) {
       expect(e).toBeInstanceOf(ApiError);
