@@ -1,7 +1,9 @@
+import * as nf from "node-fetch";
+import { createReadStream } from "fs";
+import path from "path";
 import { jest } from "@jest/globals";
 import bitdotio from "../lib";
 import { ApiError } from "../lib/errors";
-import * as nf from "node-fetch";
 
 function mockResponse(status: number, data: Record<string, any>): nf.Response {
   return new nf.Response(JSON.stringify(data), {
@@ -191,3 +193,65 @@ describe("deleteDatabase", () => {
   });
 });
 */
+
+
+describe("createImportJob", () => {
+  const b = bitdotio("v2_testtoken");
+
+  test("createImportJob file ok", async () => {
+    const stream = createReadStream(path.join(__dirname, "test-csv.csv"));
+    const expected = { foo: "bar" };
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(200, expected));
+    const result = await b.createImportJob("my/db", {
+      type: "file",
+      tableName: "my-table",
+      file: stream,
+    });
+    expect(result).toEqual(expected);
+  });
+  test("createImportJob url ok", async () => {
+    const expected = { foo: "bar" };
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(200, expected));
+    const result = await b.createImportJob("my/db", {
+      type: "url",
+      tableName: "my-table",
+      schemaName: "my-schema",
+      url: "https://example.com/my.csv",
+    });
+    expect(result).toEqual(expected);
+  });
+  test("createImportJob invalid db name", async () => {
+    try {
+      await b.createImportJob("not a db name", {
+        type: "url",
+        tableName: "my-table",
+        url: "https://example.com/my.csv",
+      });
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+      if (e instanceof Error) {
+        expect(e.message).toBe("Invalid database name");
+      }
+    }
+  });
+  test("createImportJob error", async () => {
+    const status = 400;
+    const data = { error: "whoops" };
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
+    try {
+      await b.createImportJob("my/db", {
+        type: "url",
+        tableName: "my-table",
+        url: "https://example.com/my.csv",
+      });
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(e).toBeInstanceOf(ApiError);
+      if (e instanceof ApiError) {
+        expect(e.status).toBe(status);
+        expect(e.data).toEqual(data);
+      }
+    }
+  });
+});

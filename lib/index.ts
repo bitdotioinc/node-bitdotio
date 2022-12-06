@@ -2,6 +2,8 @@ import { FetchResponse } from "api/dist/core";
 import { pruneBody, splitDbName, validateToken } from "./utils";
 import { ApiError } from "./errors";
 import { ApiClient } from "./apiClient";
+import FormData from "form-data";
+import { ReadStream, statSync } from "fs";
 
 type ApiMethodType<Args extends any[], Return> = (
   ...args: Args
@@ -87,6 +89,21 @@ function _bitdotio(apiKey: string) {
   };
 }
 
+type BaseImportJobOpts = {
+  tableName: string;
+  schemaName?: string;
+  inferHeader?: "auto" | "first_row" | "no_header";
+};
+type FileImportJobOpts = BaseImportJobOpts & {
+  type: "file";
+  file: ReadStream;
+};
+type UrlImportJobOpts = BaseImportJobOpts & {
+  type: "url";
+  url: string;
+};
+type ImportJobOpts = FileImportJobOpts | UrlImportJobOpts;
+
 class SDK {
   private _apiClient: ApiClient;
   constructor(apiKey: string) {
@@ -120,6 +137,29 @@ class SDK {
         }),
       ),
     });
+  }
+
+  async createImportJob(fullDbName: string, options: ImportJobOpts) {
+    const { username, dbName } = splitDbName(fullDbName);
+
+    const body = new FormData();
+    body.append("table_name", options.tableName);
+    if (options.schemaName) {
+      body.append("schema_name", options.schemaName);
+    }
+    if (options.inferHeader) {
+      body.append("infer_header", options.inferHeader);
+    }
+
+    if (options.type === "file") {
+      body.append("file", options.file, {
+        knownLength: statSync(options.file.path).size,
+      });
+    } else {
+      body.append("file_url", options.url);
+    }
+
+    return this._apiClient.post(`/db/${username}/${dbName}/import/`, { body });
   }
 }
 
