@@ -1,4 +1,4 @@
-import { pruneBody, splitDbName } from "./utils";
+import { pruneBody, splitDbName, validateToken } from "./utils";
 import { ApiClient } from "./apiClient";
 import FormData from "form-data";
 import { ReadStream, statSync } from "fs";
@@ -118,6 +118,7 @@ class SDK {
 }
 
 function bitdotio(apiKey: string): SDK {
+  validateToken(apiKey);
   return new SDK(apiKey);
 }
 
