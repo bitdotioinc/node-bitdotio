@@ -1,6 +1,6 @@
 import fetch, { HeadersInit, RequestInit } from "node-fetch";
 import { ApiError } from "./errors";
-import { bodyToCamelCase } from "./utils";
+import { bodyToCamelCase, getUserAgent } from "./utils";
 
 export class ApiClient {
   private _apiKey: string;
@@ -19,8 +19,7 @@ export class ApiClient {
     return {
       "Accept": "application/json",
       "Authorization": `Bearer ${this._apiKey}`,
-      // TODO: single-source version
-      "User-Agent": "node-bitdotio-sdk/0.0.1",
+      "User-Agent": getUserAgent(),
     };
   }
 

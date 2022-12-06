@@ -1,6 +1,10 @@
 const RE_TOKEN = /^v2_\w+$/;
 const RE_DB_NAME = /^\w.{0,37}?\/.{1,23}$/;
 
+const packageJson = require("../package.json");
+
+export const VERSION = packageJson.version;
+
 export function splitDbName(fullName: string): {
   username: string;
   dbName: string;
@@ -54,4 +58,8 @@ export function bodyToCamelCase(
   } else {
     return body;
   }
+}
+
+export function getUserAgent(): string {
+  return `node-bitdotio/${VERSION}`;
 }

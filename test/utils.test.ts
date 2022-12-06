@@ -1,5 +1,7 @@
 import {
+  VERSION,
   bodyToCamelCase,
+  getUserAgent,
   pruneBody,
   snakeToCamel,
   splitDbName,
@@ -108,5 +110,11 @@ describe("bodyToCamelCase", () => {
     expect(bodyToCamelCase(1)).toBe(1);
     expect(bodyToCamelCase("foo")).toBe("foo");
     expect(bodyToCamelCase(null)).toBe(null);
+  });
+});
+
+describe("getUserAgent", () => {
+  test("getUserAgent", () => {
+    expect(getUserAgent()).toBe(`node-bitdotio/${VERSION}`);
   });
 });

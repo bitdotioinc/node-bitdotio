@@ -1,6 +1,7 @@
 import * as nf from "node-fetch";
 import { jest } from "@jest/globals";
 import { ApiClient } from "../lib/apiClient";
+import { getUserAgent } from "../lib/utils";
 
 function mockResponse(status: number = 200): nf.Response {
   return new nf.Response("{}", {
@@ -17,8 +18,7 @@ describe("ApiClient", () => {
   const defaultHeaders = {
     "Accept": "application/json",
     "Authorization": `Bearer ${apiKey}`,
-    // TODO: single-source version
-    "User-Agent": "node-bitdotio-sdk/0.0.1",
+    "User-Agent": getUserAgent(),
   };
 
   beforeEach(() => {
