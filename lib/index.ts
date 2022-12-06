@@ -1,6 +1,7 @@
 import { FetchResponse } from "api/dist/core";
 import { pruneBody, splitDbName, validateToken } from "./utils";
 import { ApiError } from "./errors";
+import { ApiClient } from "./apiClient";
 
 type ApiMethodType<Args extends any[], Return> = (
   ...args: Args
@@ -27,7 +28,7 @@ function apiMethodWrapper<
   };
 }
 
-function bitdotio(apiKey: string) {
+function _bitdotio(apiKey: string) {
   validateToken(apiKey);
   // Need to require here rather than importing globally because the exported module
   // member is a just-in-time instantiated SDK object.
@@ -84,6 +85,46 @@ function bitdotio(apiKey: string) {
       );
     }),
   };
+}
+
+class SDK {
+  private _apiClient: ApiClient;
+  constructor(apiKey: string) {
+    this._apiClient = new ApiClient(apiKey);
+  }
+
+  async listDatabases() {
+    return this._apiClient
+      .get("/db")
+      .then((response: any) => response.databases);
+  }
+
+  async createDatabase({
+    name,
+    isPrivate = true,
+    storageLimitBytes = undefined,
+  }: {
+    name: string;
+    isPrivate?: boolean;
+    storageLimitBytes?: number;
+  }) {
+    return this._apiClient.post("/db/", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(
+        pruneBody({
+          name,
+          is_private: isPrivate,
+          storage_limit_bytes: storageLimitBytes,
+        }),
+      ),
+    });
+  }
+}
+
+function bitdotio(apiKey: string): SDK {
+  return new SDK(apiKey);
 }
 
 export default bitdotio;
