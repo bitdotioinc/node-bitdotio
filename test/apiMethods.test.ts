@@ -276,3 +276,96 @@ describe("getImportJob", () => {
     }
   });
 });
+
+describe("createExportJob", () => {
+  const b = bitdotio("v2_testtoken");
+
+  test("createExportJob query ok", async () => {
+    const expected = { foo: "bar" };
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(200, expected));
+    const result = await b.createExportJob("my/db", {
+      type: "query",
+      query: "SELECT * FROM my-table",
+      fileName: "my-file.csv",
+      exportFormat: "csv",
+    });
+    expect(result).toEqual(expected);
+  });
+  test("createExportJob table ok", async () => {
+    const expected = { foo: "bar" };
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(200, expected));
+    const result = await b.createExportJob("my/db", {
+      type: "table",
+      tableName: "my-table",
+      schemaName: "my-schema",
+      exportFormat: "parquet",
+    });
+    expect(result).toEqual(expected);
+  });
+  test("createExportJob invalid db name", async () => {
+    try {
+      await b.createExportJob("not a db name", {
+        type: "table",
+        tableName: "my-table",
+        exportFormat: "parquet",
+      });
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+      if (e instanceof Error) {
+        expect(e.message).toBe("Invalid database name");
+      }
+    }
+  });
+  test("createExportJob error", async () => {
+    const status = 400;
+    const data = { error: "whoops" };
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
+    try {
+      await b.createExportJob("my/db", {
+        type: "table",
+        tableName: "my-table",
+        exportFormat: "parquet",
+      });
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(e).toBeInstanceOf(ApiError);
+      if (e instanceof ApiError) {
+        expect(e.status).toBe(status);
+        expect(e.data).toEqual(data);
+      }
+    }
+  });
+});
+
+describe("getExportJob", () => {
+  const b = bitdotio("v2_testtoken");
+
+  test("getExportJob ok", async () => {
+    const expected = { foo: "bar" };
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(201, expected));
+    const result = await b.getExportJob("fdfacebb-0757-4758-a061-16ba02a2be8d");
+    expect(result).toEqual(expected);
+  });
+  test("getExportJob error", async () => {
+    const status = 400;
+    const data = { error: "whoops" };
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
+    try {
+      await b.getExportJob("fdfacebb-0757-4758-a061-16ba02a2be8d");
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(e).toBeInstanceOf(ApiError);
+      if (e instanceof ApiError) {
+        expect(e.status).toBe(status);
+        expect(e.data).toEqual(data);
+      }
+    }
+  });
+});

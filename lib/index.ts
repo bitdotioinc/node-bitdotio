@@ -19,6 +19,21 @@ type UrlImportJobOpts = BaseImportJobOpts & {
 };
 type ImportJobOpts = FileImportJobOpts | UrlImportJobOpts;
 
+type BaseExportJobOpts = {
+  fileName?: string;
+  exportFormat?: "csv" | "json" | "xls" | "parquet";
+};
+type TableExportJobOpts = BaseExportJobOpts & {
+  type: "table";
+  tableName: string;
+  schemaName?: string;
+};
+type QueryExportJobOpts = BaseExportJobOpts & {
+  type: "query";
+  query: string;
+};
+type ExportJobOpts = TableExportJobOpts | QueryExportJobOpts;
+
 class SDK {
   private _apiClient: ApiClient;
   constructor(apiKey: string) {
@@ -118,6 +133,40 @@ class SDK {
 
   async getImportJob(jobId: string): Promise<ImportJob> {
     return this._apiClient.get<ImportJob>(`/import/${jobId}`);
+  }
+
+  async createExportJob(
+    fullDbName: string,
+    options: ExportJobOpts,
+  ): Promise<ImportJob> {
+    const { username, dbName } = splitDbName(fullDbName);
+    const body: Record<string, any> = {
+      file_name: options.fileName,
+      // Default to csv if export format is not specified
+      export_format: options.exportFormat || "csv",
+    };
+    if (options.type === "table") {
+      body.table_name = options.tableName;
+      // Explicit schema name is required by the API, but we can default to
+      // public here if tableName is given.
+      body.schema_name = options.schemaName ?? "public";
+    } else {
+      body.query_string = options.query;
+    }
+
+    return this._apiClient.post<ImportJob>(
+      `/db/${username}/${dbName}/export/`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(pruneBody(body)),
+      },
+    );
+  }
+
+  async getExportJob(jobId: string): Promise<ImportJob> {
+    return this._apiClient.get<ImportJob>(`/export/${jobId}`);
   }
 }
 
