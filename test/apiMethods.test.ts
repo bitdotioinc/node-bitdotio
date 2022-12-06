@@ -5,6 +5,9 @@ import { jest } from "@jest/globals";
 import bitdotio from "../lib";
 import { ApiError } from "../lib/errors";
 
+const apiErrMsg = "API call returned an error";
+const invalidDbNameErrMsg = "Invalid database name";
+
 function mockResponse(status: number, data: Record<string, any>): nf.Response {
   return new nf.Response(JSON.stringify(data), {
     status,
@@ -29,16 +32,9 @@ describe("listDatabases", () => {
     const status = 400;
     const data = { error: "whoops" };
     jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
-    try {
-      await b.listDatabases();
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e).toBeInstanceOf(ApiError);
-      if (e instanceof ApiError) {
-        expect(e.status).toBe(status);
-        expect(e.data).toEqual(data);
-      }
-    }
+    await expect(b.listDatabases()).rejects.toThrow(
+      new ApiError(apiErrMsg, status, data),
+    );
   });
 });
 
@@ -54,30 +50,17 @@ describe("getDatabase", () => {
     expect(result).toEqual(expected);
   });
   test("getDatabase invalid db name", async () => {
-    try {
-      await b.getDatabase("not a db name");
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-      if (e instanceof Error) {
-        expect(e.message).toBe("Invalid database name");
-      }
-    }
+    await expect(b.getDatabase("not a db name")).rejects.toThrow(
+      new Error(invalidDbNameErrMsg),
+    );
   });
   test("getDatabase error", async () => {
     const status = 400;
     const data = { error: "whoops" };
     jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
-    try {
-      await b.getDatabase("my/db");
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e).toBeInstanceOf(ApiError);
-      if (e instanceof ApiError) {
-        expect(e.status).toBe(status);
-        expect(e.data).toEqual(data);
-      }
-    }
+    await expect(b.getDatabase("my/db")).rejects.toThrow(
+      new ApiError(apiErrMsg, status, data),
+    );
   });
 });
 
@@ -96,16 +79,9 @@ describe("createDatabase", () => {
     const status = 400;
     const data = { error: "whoops" };
     jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
-    try {
-      await b.createDatabase({ name: "my-db", isPrivate: false });
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e).toBeInstanceOf(ApiError);
-      if (e instanceof ApiError) {
-        expect(e.status).toBe(status);
-        expect(e.data).toEqual(data);
-      }
-    }
+    await expect(
+      b.createDatabase({ name: "my-db", isPrivate: false }),
+    ).rejects.toThrow(new ApiError(apiErrMsg, status, data));
   });
 });
 
@@ -121,30 +97,17 @@ describe("updateDatabase", () => {
     expect(result).toEqual(expected);
   });
   test("updateDatabase invalid db name", async () => {
-    try {
-      await b.updateDatabase("not a db name", { name: "boop" });
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-      if (e instanceof Error) {
-        expect(e.message).toBe("Invalid database name");
-      }
-    }
+    await expect(b.updateDatabase("not a db name", {})).rejects.toThrow(
+      new Error(invalidDbNameErrMsg),
+    );
   });
   test("updateDatabase error", async () => {
     const status = 400;
     const data = { error: "whoops" };
     jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
-    try {
-      await b.updateDatabase("my/db", { storageLimitBytes: 12345 });
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e).toBeInstanceOf(ApiError);
-      if (e instanceof ApiError) {
-        expect(e.status).toBe(status);
-        expect(e.data).toEqual(data);
-      }
-    }
+    await expect(
+      b.updateDatabase("my/db", { storageLimitBytes: 12345 }),
+    ).rejects.toThrow(new ApiError(apiErrMsg, status, data));
   });
 });
 
@@ -157,30 +120,17 @@ describe("deleteDatabase", () => {
     expect(result).toBeUndefined();
   });
   test("deleteDatabase invalid db name", async () => {
-    try {
-      await b.deleteDatabase("not a db name");
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-      if (e instanceof Error) {
-        expect(e.message).toBe("Invalid database name");
-      }
-    }
+    await expect(b.deleteDatabase("not a db name")).rejects.toThrow(
+      new Error(invalidDbNameErrMsg),
+    );
   });
   test("deleteDatabase error", async () => {
     const status = 400;
     const data = { error: "whoops" };
     jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
-    try {
-      await b.deleteDatabase("my/db");
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e).toBeInstanceOf(ApiError);
-      if (e instanceof ApiError) {
-        expect(e.status).toBe(status);
-        expect(e.data).toEqual(data);
-      }
-    }
+    await expect(b.deleteDatabase("my/db")).rejects.toThrow(
+      new ApiError(apiErrMsg, status, data),
+    );
   });
 });
 
@@ -214,38 +164,25 @@ describe("createImportJob", () => {
     expect(result).toEqual(expected);
   });
   test("createImportJob invalid db name", async () => {
-    try {
-      await b.createImportJob("not a db name", {
+    await expect(
+      b.createImportJob("not a db name", {
         type: "url",
         tableName: "my-table",
         url: "https://example.com/my.csv",
-      });
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-      if (e instanceof Error) {
-        expect(e.message).toBe("Invalid database name");
-      }
-    }
+      }),
+    ).rejects.toThrow(new Error(invalidDbNameErrMsg));
   });
   test("createImportJob error", async () => {
     const status = 400;
     const data = { error: "whoops" };
     jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
-    try {
-      await b.createImportJob("my/db", {
+    await expect(
+      b.createImportJob("my/db", {
         type: "url",
         tableName: "my-table",
         url: "https://example.com/my.csv",
-      });
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e).toBeInstanceOf(ApiError);
-      if (e instanceof ApiError) {
-        expect(e.status).toBe(status);
-        expect(e.data).toEqual(data);
-      }
-    }
+      }),
+    ).rejects.toThrow(new ApiError(apiErrMsg, status, data));
   });
 });
 
@@ -264,16 +201,9 @@ describe("getImportJob", () => {
     const status = 400;
     const data = { error: "whoops" };
     jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
-    try {
-      await b.getImportJob("fdfacebb-0757-4758-a061-16ba02a2be8d");
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e).toBeInstanceOf(ApiError);
-      if (e instanceof ApiError) {
-        expect(e.status).toBe(status);
-        expect(e.data).toEqual(data);
-      }
-    }
+    await expect(
+      b.getImportJob("fdfacebb-0757-4758-a061-16ba02a2be8d"),
+    ).rejects.toThrow(new ApiError(apiErrMsg, status, data));
   });
 });
 
@@ -307,38 +237,25 @@ describe("createExportJob", () => {
     expect(result).toEqual(expected);
   });
   test("createExportJob invalid db name", async () => {
-    try {
-      await b.createExportJob("not a db name", {
+    await expect(
+      b.createExportJob("not a db name", {
         type: "table",
         tableName: "my-table",
         exportFormat: "parquet",
-      });
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-      if (e instanceof Error) {
-        expect(e.message).toBe("Invalid database name");
-      }
-    }
+      }),
+    ).rejects.toThrow(new Error(invalidDbNameErrMsg));
   });
   test("createExportJob error", async () => {
     const status = 400;
     const data = { error: "whoops" };
     jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
-    try {
-      await b.createExportJob("my/db", {
+    await expect(
+      b.createExportJob("my/db", {
         type: "table",
         tableName: "my-table",
         exportFormat: "parquet",
-      });
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e).toBeInstanceOf(ApiError);
-      if (e instanceof ApiError) {
-        expect(e.status).toBe(status);
-        expect(e.data).toEqual(data);
-      }
-    }
+      }),
+    ).rejects.toThrow(new ApiError(apiErrMsg, status, data));
   });
 });
 
@@ -357,15 +274,8 @@ describe("getExportJob", () => {
     const status = 400;
     const data = { error: "whoops" };
     jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
-    try {
-      await b.getExportJob("fdfacebb-0757-4758-a061-16ba02a2be8d");
-      expect(true).toBe(false);
-    } catch (e) {
-      expect(e).toBeInstanceOf(ApiError);
-      if (e instanceof ApiError) {
-        expect(e.status).toBe(status);
-        expect(e.data).toEqual(data);
-      }
-    }
+    await expect(
+      b.getExportJob("fdfacebb-0757-4758-a061-16ba02a2be8d"),
+    ).rejects.toThrow(new ApiError(apiErrMsg, status, data));
   });
 });
