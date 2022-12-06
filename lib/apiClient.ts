@@ -1,5 +1,6 @@
 import fetch, { HeadersInit, RequestInit, Response } from "node-fetch";
 import { ApiError } from "./errors";
+import { bodyToCamelCase } from "./utils";
 
 export class ApiClient {
   private _apiKey: string;
@@ -32,7 +33,7 @@ export class ApiClient {
       method,
     });
 
-    const data = await response.json()
+    const data = bodyToCamelCase(await response.json());
 
     if (response.ok) {
       return data;
