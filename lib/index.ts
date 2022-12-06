@@ -139,6 +139,34 @@ class SDK {
     });
   }
 
+  async getDatabase(fullDbName: string) {
+    const { username, dbName } = splitDbName(fullDbName);
+    return this._apiClient.get(`/db/${username}/${dbName}`);
+  }
+
+  async updateDatabase(fullDbName: string, options: {
+    name?: string;
+    isPrivate?: boolean;
+    storageLimitBytes?: number;
+  }) {
+    const { username, dbName } = splitDbName(fullDbName);
+    return this._apiClient.patch(`/db/${username}/${dbName}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(pruneBody({
+        name: options.name,
+        is_private: options.isPrivate,
+        storage_limit_bytes: options.storageLimitBytes,
+      })),
+    });
+  }
+
+  async deleteDatabase(fullDbName: string): Promise<void> {
+    const { username, dbName } = splitDbName(fullDbName);
+    await this._apiClient.delete(`/db/${username}/${dbName}`);
+  }
+
   async createImportJob(fullDbName: string, options: ImportJobOpts) {
     const { username, dbName } = splitDbName(fullDbName);
 

@@ -42,17 +42,14 @@ describe("listDatabases", () => {
   });
 });
 
-/*
 describe("getDatabase", () => {
   const b = bitdotio("v2_testtoken");
 
   test("getDatabase ok", async () => {
     const expected = { foo: "bar" };
-    b._apiClient.get_db_v2beta_db__username___db_name__get = jest.fn(
-      mockApiMethod(200, expected),
-    );
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(200, expected));
     const result = await b.getDatabase("my/db");
-    expect(result).toBe(expected);
+    expect(result).toEqual(expected);
   });
   test("getDatabase invalid db name", async () => {
     try {
@@ -68,9 +65,7 @@ describe("getDatabase", () => {
   test("getDatabase error", async () => {
     const status = 400;
     const data = { error: "whoops" };
-    b._apiClient.get_db_v2beta_db__username___db_name__get = jest.fn(
-      mockApiMethod(status, data),
-    );
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
     try {
       await b.getDatabase("my/db");
       expect(true).toBe(false);
@@ -78,12 +73,11 @@ describe("getDatabase", () => {
       expect(e).toBeInstanceOf(ApiError);
       if (e instanceof ApiError) {
         expect(e.status).toBe(status);
-        expect(e.data).toBe(data);
+        expect(e.data).toEqual(data);
       }
     }
   });
 });
-*/
 
 describe("createDatabase", () => {
   const b = bitdotio("v2_testtoken");
@@ -111,17 +105,14 @@ describe("createDatabase", () => {
   });
 });
 
-/*
 describe("updateDatabase", () => {
   const b = bitdotio("v2_testtoken");
 
   test("updateDatabase ok", async () => {
     const expected = { foo: "bar" };
-    b._apiClient.update_db_v2beta_db__username___db_name__patch = jest.fn(
-      mockApiMethod(200, expected),
-    );
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(200, expected));
     const result = await b.updateDatabase("my/db", { isPrivate: false });
-    expect(result).toBe(expected);
+    expect(result).toEqual(expected);
   });
   test("updateDatabase invalid db name", async () => {
     try {
@@ -137,9 +128,7 @@ describe("updateDatabase", () => {
   test("updateDatabase error", async () => {
     const status = 400;
     const data = { error: "whoops" };
-    b._apiClient.update_db_v2beta_db__username___db_name__patch = jest.fn(
-      mockApiMethod(status, data),
-    );
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
     try {
       await b.updateDatabase("my/db", { storageLimitBytes: 12345 });
       expect(true).toBe(false);
@@ -147,7 +136,7 @@ describe("updateDatabase", () => {
       expect(e).toBeInstanceOf(ApiError);
       if (e instanceof ApiError) {
         expect(e.status).toBe(status);
-        expect(e.data).toBe(data);
+        expect(e.data).toEqual(data);
       }
     }
   });
@@ -157,11 +146,9 @@ describe("deleteDatabase", () => {
   const b = bitdotio("v2_testtoken");
 
   test("deleteDatabase ok", async () => {
-    b._apiClient.delete_db_v2beta_db__username___db_name__delete = jest.fn(
-      mockApiMethod(200, {}),
-    );
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(200, {}));
     const result = await b.deleteDatabase("my/db");
-    expect(result).toEqual({});
+    expect(result).toBeUndefined();
   });
   test("deleteDatabase invalid db name", async () => {
     try {
@@ -177,9 +164,7 @@ describe("deleteDatabase", () => {
   test("deleteDatabase error", async () => {
     const status = 400;
     const data = { error: "whoops" };
-    b._apiClient.delete_db_v2beta_db__username___db_name__delete = jest.fn(
-      mockApiMethod(status, data),
-    );
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
     try {
       await b.deleteDatabase("my/db");
       expect(true).toBe(false);
@@ -187,13 +172,11 @@ describe("deleteDatabase", () => {
       expect(e).toBeInstanceOf(ApiError);
       if (e instanceof ApiError) {
         expect(e.status).toBe(status);
-        expect(e.data).toBe(data);
+        expect(e.data).toEqual(data);
       }
     }
   });
 });
-*/
-
 
 describe("createImportJob", () => {
   const b = bitdotio("v2_testtoken");
