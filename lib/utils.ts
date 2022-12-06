@@ -3,13 +3,13 @@ const RE_DB_NAME = /^\w.{0,37}?\/.{1,23}$/;
 
 export function splitDbName(fullName: string): {
   username: string;
-  db_name: string;
+  dbName: string;
 } {
   if (!RE_DB_NAME.test(fullName)) {
     throw new Error("Invalid database name");
   }
   const [username, ...rest] = fullName.split("/");
-  return { username, db_name: encodeURIComponent(rest.join("/")) };
+  return { username, dbName: encodeURIComponent(rest.join("/")) };
 }
 
 export function validateToken(token: string) {

@@ -2,14 +2,14 @@ import { pruneBody, splitDbName, validateToken } from "../lib/utils";
 
 describe("splitDbName", () => {
   test("splitDbName base case", () => {
-    const { username, db_name } = splitDbName("a/b");
+    const { username, dbName } = splitDbName("a/b");
     expect(username).toBe("a");
-    expect(db_name).toBe("b");
+    expect(dbName).toBe("b");
   });
   test("splitDbName multiplle slashes", () => {
-    const { username, db_name } = splitDbName("a/b/c");
+    const { username, dbName } = splitDbName("a/b/c");
     expect(username).toBe("a");
-    expect(db_name).toBe("b%2Fc");
+    expect(dbName).toBe("b%2Fc");
   });
   test("splitDbName invalid db name", () => {
     const testCases = [
