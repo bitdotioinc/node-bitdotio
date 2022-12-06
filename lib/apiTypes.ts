@@ -1,3 +1,9 @@
+export interface QueryResults<Format extends "rows" | "objects"> {
+  queryString: string,
+  metadata: Record<string, any>,
+  data: Format extends "rows" ? any[][] : Record<string, any>[],
+}
+
 interface DatabaseUsage {
   rowsQueried: number;
   periodStart: string;

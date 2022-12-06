@@ -2,7 +2,7 @@ import { pruneBody, splitDbName, validateToken } from "./utils";
 import { ApiClient } from "./apiClient";
 import FormData from "form-data";
 import { ReadStream, statSync } from "fs";
-import { Database, ImportJob } from "./apiTypes";
+import { Database, ImportJob, QueryResults } from "./apiTypes";
 
 type BaseImportJobOpts = {
   tableName: string;
@@ -38,6 +38,26 @@ class SDK {
   private _apiClient: ApiClient;
   constructor(apiKey: string) {
     this._apiClient = new ApiClient(apiKey);
+  }
+
+  async query<F extends "rows" | "objects">(
+    fullDbName: string,
+    query: string,
+    dataFormat: F = "rows" as F,
+  ): Promise<QueryResults<F>> {
+    let path = "/query";
+    if (dataFormat === "objects") {
+      path += "?data_format=objects";
+    }
+    return this._apiClient.post<QueryResults<F>>(path, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        database_name: fullDbName,
+        query_string: query,
+      }),
+    });
   }
 
   async listDatabases(): Promise<Database[]> {

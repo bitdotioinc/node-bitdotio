@@ -4,6 +4,7 @@ import path from "path";
 import { jest } from "@jest/globals";
 import bitdotio from "../lib";
 import { ApiError } from "../lib/errors";
+import { getUserAgent } from "../lib/utils";
 
 const apiErrMsg = "API call returned an error";
 const invalidDbNameErrMsg = "Invalid database name";
@@ -16,6 +17,80 @@ function mockResponse(status: number, data: Record<string, any>): nf.Response {
     },
   });
 }
+
+describe("query", () => {
+  const apiKey = "v2_testtoken";
+  const b = bitdotio(apiKey);
+  const defaultHeaders = {
+    "Accept": "application/json",
+    "Authorization": `Bearer ${apiKey}`,
+    "User-Agent": getUserAgent(),
+  };
+
+  test("query ok rows", async () => {
+    const dbName = "my/db";
+    const query = "SELECT * FROM my_table";
+    const expected = { foo: "bar" };
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(200, expected));
+
+    const result = await b.query(dbName, query);
+
+    expect(result).toEqual(expected);
+    expect(nf.default).toHaveBeenLastCalledWith(
+      "https://api.bit.io/v2beta/query",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...defaultHeaders,
+        },
+        body: JSON.stringify({
+          database_name: dbName,
+          query_string: query,
+        }),
+      },
+    );
+  });
+  test("query ok objects", async () => {
+    const dbName = "my/db";
+    const query = "SELECT * FROM my_table";
+    const expected = { foo: "bar" };
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(200, expected));
+
+    const result = await b.query(dbName, query, "objects");
+
+    expect(result).toEqual(expected);
+    expect(nf.default).toHaveBeenLastCalledWith(
+      "https://api.bit.io/v2beta/query?data_format=objects",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...defaultHeaders,
+        },
+        body: JSON.stringify({
+          database_name: dbName,
+          query_string: query,
+        }),
+      },
+    );
+  });
+  test("query error", async () => {
+    const dbName = "my/db";
+    const query = "SELECT * FROM my_table";
+    const status = 400;
+    const data = { error: "whoops" };
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
+
+    await expect(b.query(dbName, query)).rejects.toThrow(
+      new ApiError(apiErrMsg, status, data),
+    );
+  });
+});
 
 describe("listDatabases", () => {
   const b = bitdotio("v2_testtoken");
