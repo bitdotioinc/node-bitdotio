@@ -34,7 +34,6 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
-    "@api/bitdotio": "file:.api/apis/bitdotio",
     "node-fetch": "^2.6.7"
   }
 }
