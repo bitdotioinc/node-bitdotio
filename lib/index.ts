@@ -115,6 +115,10 @@ class SDK {
       { body },
     );
   }
+
+  async getImportJob(jobId: string): Promise<ImportJob> {
+    return this._apiClient.get<ImportJob>(`/import/${jobId}`);
+  }
 }
 
 function bitdotio(apiKey: string): SDK {

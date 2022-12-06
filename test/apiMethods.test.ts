@@ -47,7 +47,9 @@ describe("getDatabase", () => {
 
   test("getDatabase ok", async () => {
     const expected = { foo: "bar" };
-    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(200, expected));
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(200, expected));
     const result = await b.getDatabase("my/db");
     expect(result).toEqual(expected);
   });
@@ -84,7 +86,9 @@ describe("createDatabase", () => {
 
   test("createDatabase ok", async () => {
     const expected = { foo: "bar" };
-    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(200, expected));
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(201, expected));
     const result = await b.createDatabase({ name: "my-db" });
     expect(result).toEqual(expected);
   });
@@ -110,7 +114,9 @@ describe("updateDatabase", () => {
 
   test("updateDatabase ok", async () => {
     const expected = { foo: "bar" };
-    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(200, expected));
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(200, expected));
     const result = await b.updateDatabase("my/db", { isPrivate: false });
     expect(result).toEqual(expected);
   });
@@ -184,7 +190,9 @@ describe("createImportJob", () => {
   test("createImportJob file ok", async () => {
     const stream = createReadStream(path.join(__dirname, "test-csv.csv"));
     const expected = { foo: "bar" };
-    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(200, expected));
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(200, expected));
     const result = await b.createImportJob("my/db", {
       type: "file",
       tableName: "my-table",
@@ -194,7 +202,9 @@ describe("createImportJob", () => {
   });
   test("createImportJob url ok", async () => {
     const expected = { foo: "bar" };
-    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(200, expected));
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(200, expected));
     const result = await b.createImportJob("my/db", {
       type: "url",
       tableName: "my-table",
@@ -228,6 +238,34 @@ describe("createImportJob", () => {
         tableName: "my-table",
         url: "https://example.com/my.csv",
       });
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(e).toBeInstanceOf(ApiError);
+      if (e instanceof ApiError) {
+        expect(e.status).toBe(status);
+        expect(e.data).toEqual(data);
+      }
+    }
+  });
+});
+
+describe("getImportJob", () => {
+  const b = bitdotio("v2_testtoken");
+
+  test("getImportJob ok", async () => {
+    const expected = { foo: "bar" };
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(201, expected));
+    const result = await b.getImportJob("fdfacebb-0757-4758-a061-16ba02a2be8d");
+    expect(result).toEqual(expected);
+  });
+  test("getImportJob error", async () => {
+    const status = 400;
+    const data = { error: "whoops" };
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
+    try {
+      await b.getImportJob("fdfacebb-0757-4758-a061-16ba02a2be8d");
       expect(true).toBe(false);
     } catch (e) {
       expect(e).toBeInstanceOf(ApiError);
