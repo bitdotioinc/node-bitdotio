@@ -1,10 +1,11 @@
-import fetch, { HeadersInit, RequestInit, Response } from "node-fetch";
+import fetch, { HeadersInit, RequestInit } from "node-fetch";
 import { ApiError } from "./errors";
 import { bodyToCamelCase } from "./utils";
 
 export class ApiClient {
   private _apiKey: string;
   private _apiVersion: string;
+
   constructor(apiKey: string, apiVersion: string = "v2beta") {
     this._apiKey = apiKey;
     this._apiVersion = apiVersion;
@@ -23,7 +24,11 @@ export class ApiClient {
     };
   }
 
-  async request(method: string, path: string, init?: RequestInit) {
+  async request<T>(
+    method: string,
+    path: string,
+    init?: RequestInit,
+  ): Promise<T> {
     const response = await fetch(this._url(path), {
       ...init,
       headers: {
@@ -33,7 +38,7 @@ export class ApiClient {
       method,
     });
 
-    const data = bodyToCamelCase(await response.json());
+    const data = bodyToCamelCase(await response.json()) as T;
 
     if (response.ok) {
       return data;
@@ -42,19 +47,19 @@ export class ApiClient {
     throw new ApiError("API call returned an error", response.status, data);
   }
 
-  async get(path: string, init?: RequestInit) {
-    return this.request("GET", path, init);
+  async get<T>(path: string, init?: RequestInit): Promise<T> {
+    return this.request<T>("GET", path, init);
   }
 
-  async post(path: string, init?: RequestInit) {
-    return this.request("POST", path, init);
+  async post<T>(path: string, init?: RequestInit): Promise<T> {
+    return this.request<T>("POST", path, init);
   }
 
-  async patch(path: string, init?: RequestInit) {
-    return this.request("PATCH", path, init);
+  async patch<T>(path: string, init?: RequestInit): Promise<T> {
+    return this.request<T>("PATCH", path, init);
   }
 
-  async delete(path: string, init?: RequestInit) {
-    return this.request("DELETE", path, init);
+  async delete<T>(path: string, init?: RequestInit): Promise<T> {
+    return this.request<T>("DELETE", path, init);
   }
 }

@@ -4,6 +4,7 @@ import { ApiError } from "./errors";
 import { ApiClient } from "./apiClient";
 import FormData from "form-data";
 import { ReadStream, statSync } from "fs";
+import { Database, ImportJob } from "./apiTypes";
 
 type ApiMethodType<Args extends any[], Return> = (
   ...args: Args
@@ -110,9 +111,9 @@ class SDK {
     this._apiClient = new ApiClient(apiKey);
   }
 
-  async listDatabases() {
+  async listDatabases(): Promise<Database[]> {
     return this._apiClient
-      .get("/db")
+      .get<{ databases: Database[] }>("/db")
       .then((response: any) => response.databases);
   }
 
@@ -124,8 +125,8 @@ class SDK {
     name: string;
     isPrivate?: boolean;
     storageLimitBytes?: number;
-  }) {
-    return this._apiClient.post("/db/", {
+  }): Promise<Database> {
+    return this._apiClient.post<Database>("/db/", {
       headers: {
         "Content-Type": "application/json",
       },
@@ -139,26 +140,31 @@ class SDK {
     });
   }
 
-  async getDatabase(fullDbName: string) {
+  async getDatabase(fullDbName: string): Promise<Database> {
     const { username, dbName } = splitDbName(fullDbName);
-    return this._apiClient.get(`/db/${username}/${dbName}`);
+    return this._apiClient.get<Database>(`/db/${username}/${dbName}`);
   }
 
-  async updateDatabase(fullDbName: string, options: {
-    name?: string;
-    isPrivate?: boolean;
-    storageLimitBytes?: number;
-  }) {
+  async updateDatabase(
+    fullDbName: string,
+    options: {
+      name?: string;
+      isPrivate?: boolean;
+      storageLimitBytes?: number;
+    },
+  ): Promise<Database> {
     const { username, dbName } = splitDbName(fullDbName);
-    return this._apiClient.patch(`/db/${username}/${dbName}`, {
+    return this._apiClient.patch<Database>(`/db/${username}/${dbName}`, {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(pruneBody({
-        name: options.name,
-        is_private: options.isPrivate,
-        storage_limit_bytes: options.storageLimitBytes,
-      })),
+      body: JSON.stringify(
+        pruneBody({
+          name: options.name,
+          is_private: options.isPrivate,
+          storage_limit_bytes: options.storageLimitBytes,
+        }),
+      ),
     });
   }
 
@@ -167,7 +173,10 @@ class SDK {
     await this._apiClient.delete(`/db/${username}/${dbName}`);
   }
 
-  async createImportJob(fullDbName: string, options: ImportJobOpts) {
+  async createImportJob(
+    fullDbName: string,
+    options: ImportJobOpts,
+  ): Promise<ImportJob> {
     const { username, dbName } = splitDbName(fullDbName);
 
     const body = new FormData();
@@ -187,7 +196,10 @@ class SDK {
       body.append("file_url", options.url);
     }
 
-    return this._apiClient.post(`/db/${username}/${dbName}/import/`, { body });
+    return this._apiClient.post<ImportJob>(
+      `/db/${username}/${dbName}/import/`,
+      { body },
+    );
   }
 }
 
