@@ -1,7 +1,7 @@
-import { pruneBody, splitDbName, validateToken } from "./utils";
-import { ApiClient } from "./apiClient";
-import FormData from "form-data";
 import { ReadStream, statSync } from "fs";
+import FormData from "form-data";
+import { Client, ClientConfig, Pool, PoolConfig } from "pg";
+import { ApiClient } from "./apiClient";
 import { Database, ImportJob, QueryResults } from "./apiTypes";
 import { pruneBody, splitDbName, validateDbName, validateToken } from "./utils";
 
@@ -36,9 +36,86 @@ type QueryExportJobOpts = BaseExportJobOpts & {
 type ExportJobOpts = TableExportJobOpts | QueryExportJobOpts;
 
 class SDK {
+  private _host = "db.bit.io";
+  private _port = 5432;
+  // Default client options that can be overridden by the caller
+  private _clientDefaults = {};
+  // Connect options that we require
+  private _clientOpts = {
+    // Require SSL always
+    ssl: true,
+  };
+  // Default pool options that can be overridden by the caller
+  private _poolDefaults = {
+    min: 0,
+    max: 100,
+    // bit.io has a 5 minute idle timeout, so make sure this less by default.
+    // It's still configurable by the caller.
+    idleTimeoutMillis: 290,
+  };
+  // Pool options that we require
+  private _poolOpts = {
+    // Require SSL always
+    ssl: true,
+  };
+
+  private _apiKey: string;
   private _apiClient: ApiClient;
-  constructor(apiKey: string) {
+  private _pools: Map<string, Pool>;
+
+  clientOpts: ClientConfig;
+  poolOpts: PoolConfig;
+
+  constructor(
+    apiKey: string,
+    clientOpts?: ClientConfig,
+    poolOpts?: PoolConfig,
+  ) {
+    this._apiKey = apiKey;
     this._apiClient = new ApiClient(apiKey);
+    this._pools = new Map();
+
+    this.clientOpts = clientOpts ?? {};
+    this.poolOpts = poolOpts ?? {};
+  }
+
+  async end() {
+    this._pools.forEach(async (pool) => await pool.end());
+  }
+
+  async getClient(fullDbName: string): Promise<Client> {
+    validateDbName(fullDbName);
+    const client = new Client({
+      ...this._clientDefaults,
+      ...this.clientOpts,
+      ...this._clientOpts,
+      user: "node_sdk",
+      password: this._apiKey,
+      host: this._host,
+      port: this._port,
+      database: fullDbName,
+    });
+    await client.connect();
+    return client;
+  }
+
+  getPool(fullDbName: string): Pool {
+    validateDbName(fullDbName);
+    let pool = this._pools.get(fullDbName);
+    if (!pool) {
+      pool = new Pool({
+        ...this._poolDefaults,
+        ...this.poolOpts,
+        ...this._poolOpts,
+        user: "node_sdk",
+        password: this._apiKey,
+        host: this._host,
+        port: this._port,
+        database: fullDbName,
+      });
+      this._pools.set(fullDbName, pool);
+    }
+    return pool;
   }
 
   async query<F extends "rows" | "objects">(
@@ -192,9 +269,13 @@ class SDK {
   }
 }
 
-function bitdotio(apiKey: string): SDK {
+function bitdotio(
+  apiKey: string,
+  clientOpts?: ClientConfig,
+  poolOpts?: PoolConfig,
+): SDK {
   validateToken(apiKey);
-  return new SDK(apiKey);
+  return new SDK(apiKey, clientOpts, poolOpts);
 }
 
 export default bitdotio;
