@@ -84,6 +84,16 @@ b.createDatabase({ name: "demo-db" }).then(async (dbMetadata) => {
 
 ### Making queries
 
+The `node-bitdotio` SDK offers two different methods for executing queries against a
+bit.io database:
+1. Connecting directly via the Postgres protocol using `node-postgres`
+2. Querying over HTTP using the bit.io developer API
+
+The tradeoffs between the two are worth some discussion here. In short, direct
+connections are preferable in the majority of cases, and the `query` method should be
+used sparingly, or wherever it is not possible to use a database driver or a raw TCP
+socket.
+
 #### Connecting directly
 
 The `bitdotio` SDK object provides the methods `getPool` and `getClient`, which return
