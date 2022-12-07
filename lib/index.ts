@@ -3,6 +3,7 @@ import { ApiClient } from "./apiClient";
 import FormData from "form-data";
 import { ReadStream, statSync } from "fs";
 import { Database, ImportJob, QueryResults } from "./apiTypes";
+import { pruneBody, splitDbName, validateDbName, validateToken } from "./utils";
 
 type BaseImportJobOpts = {
   tableName: string;
@@ -45,6 +46,7 @@ class SDK {
     query: string,
     dataFormat: F = "rows" as F,
   ): Promise<QueryResults<F>> {
+    validateDbName(fullDbName);
     let path = "/query";
     if (dataFormat === "objects") {
       path += "?data_format=objects";

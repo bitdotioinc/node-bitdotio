@@ -79,6 +79,11 @@ describe("query", () => {
       },
     );
   });
+  test("query invalid db name", async () => {
+    await expect(
+      b.query("not a db name", "SELECT * FROM my_table"),
+    ).rejects.toThrow(new Error("Invalid database name"));
+  });
   test("query error", async () => {
     const dbName = "my/db";
     const query = "SELECT * FROM my_table";
