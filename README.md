@@ -110,7 +110,7 @@ in situations where installing a database driver is undesirable or impossible, w
 queries are being run very infrequently, or in very short-lived contexts such as one-off
 scripts or serverless backends.
 
-### Connection pooling and management
+### Connection pooling and management [important]
 
 The recommended way to obtain a direct connection to a bit.io database is via a
 connection pool. In order to support scaling to zero, bit.io automatically closes idle
