@@ -279,3 +279,4 @@ function bitdotio(
 }
 
 export default bitdotio;
+module.exports = bitdotio;
