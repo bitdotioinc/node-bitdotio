@@ -5,13 +5,17 @@ const packageJson = require("../package.json");
 
 export const VERSION = packageJson.version;
 
+export function validateDbName(dbName: string): void {
+  if (!RE_DB_NAME.test(dbName)) {
+    throw new Error("Invalid database name");
+  }
+}
+
 export function splitDbName(fullName: string): {
   username: string;
   dbName: string;
 } {
-  if (!RE_DB_NAME.test(fullName)) {
-    throw new Error("Invalid database name");
-  }
+  validateDbName(fullName);
   const [username, ...rest] = fullName.split("/");
   return { username, dbName: encodeURIComponent(rest.join("/")) };
 }

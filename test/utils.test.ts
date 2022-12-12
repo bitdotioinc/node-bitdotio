@@ -5,8 +5,30 @@ import {
   pruneBody,
   snakeToCamel,
   splitDbName,
+  validateDbName,
   validateToken
 } from "../lib/utils";
+
+describe("validateDbName", () => {
+  test("valid", () => {
+    expect(() => validateDbName("foo/bar")).not.toThrow();
+    expect(() => validateDbName("foo/bar/baz")).not.toThrow();
+  });
+  test("invalid", () => {
+    const testCases = [
+      "/mydb",
+      "mydb",
+      "myExtremelyLongUserNameWhichIsDefinitelyWayTooLong/db",
+      "me/myExtremelyLongDatabaseNameWhichIsDefinitelyWayTooLong",
+      "-/db",
+      "./db",
+      "me/",
+    ];
+    testCases.forEach((testCase) => {
+      expect(() => validateDbName(testCase)).toThrow("Invalid database name");
+    });
+  });
+});
 
 describe("splitDbName", () => {
   test("splitDbName base case", () => {
