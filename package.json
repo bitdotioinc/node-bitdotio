@@ -1,5 +1,5 @@
 {
-  "name": "node-bitdotio",
+  "name": "@bitdotioinc/node-bitdotio",
   "version": "0.0.0",
   "description": "Node SDK for bit.io",
   "main": "dist/index.js",
