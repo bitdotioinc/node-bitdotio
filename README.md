@@ -6,7 +6,7 @@ the [bit.io](https://bit.io) developer API.
 ## Installation
 
 ```sh
-npm install node-bitdotio
+npm install @bitdotioinc/node-bitdotio
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ the SDK.
 
 ```js
 const { createReadStream } = require('fs');
-const bitdotio = require('node-bitdotio');
+const bitdotio = require('@bitdotioinc/node-bitdotio');
 
 const BITIO_KEY = process.env.BITIO_KEY;
 
