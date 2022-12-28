@@ -33,3 +33,21 @@ export interface ImportJob {
   errorDetails: Record<string, any> | null;
   statusUrl: string;
 }
+
+export interface ServiceAccount {
+  id: string;
+  name: string;
+  dateCreated: string;
+  role: "OWNER" | "ADMIN" | "READER" | "WRITER";
+  databases: {
+    id: string;
+    name: string;
+  }[];
+  tokenCount: number;
+  activeTokenCount: number;
+}
+
+export interface ApiKey {
+  apiKey: string;
+  username: string;
+}
