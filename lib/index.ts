@@ -2,7 +2,7 @@ import { ReadStream, statSync } from "fs";
 import FormData from "form-data";
 import { Client, ClientConfig, Pool, PoolConfig } from "pg";
 import { ApiClient } from "./apiClient";
-import { Database, ImportJob, QueryResults } from "./apiTypes";
+import { Database, ImportJob, QueryResults, ServiceAccount } from "./apiTypes";
 import { pruneBody, splitDbName, validateDbName, validateToken } from "./utils";
 
 type BaseImportJobOpts = {
@@ -266,6 +266,18 @@ class SDK {
 
   async getExportJob(jobId: string): Promise<ImportJob> {
     return this._apiClient.get<ImportJob>(`/export/${jobId}`);
+  }
+
+  async listServiceAccounts(): Promise<ServiceAccount[]> {
+    return this._apiClient
+      .get<{ serviceAccounts: ServiceAccount[] }>("/service-account/")
+      .then((response: any) => response.serviceAccounts);
+  }
+
+  async getServiceAccount(serviceAccountId: string): Promise<ServiceAccount> {
+    return this._apiClient.get<ServiceAccount>(
+      `/service-account/${serviceAccountId}`,
+    );
   }
 }
 

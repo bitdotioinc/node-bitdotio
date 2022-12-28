@@ -359,3 +359,45 @@ describe("getExportJob", () => {
     ).rejects.toThrow(new ApiError(apiErrMsg, status, data));
   });
 });
+
+describe("listServiceAccounts", () => {
+  const b = bitdotio("v2_testtoken");
+
+  test("listServiceAccounts ok", async () => {
+    const expected = [{ foo: "bar" }];
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(200, { service_accounts: expected }));
+    const result = await b.listServiceAccounts();
+    expect(result).toEqual(expected);
+  });
+  test("listServiceAccounts error", async () => {
+    const status = 400;
+    const data = { error: "whoops" };
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
+    await expect(b.listServiceAccounts()).rejects.toThrow(
+      new ApiError(apiErrMsg, status, data),
+    );
+  });
+});
+
+describe("getServiceAccount", () => {
+  const b = bitdotio("v2_testtoken");
+
+  test("getServiceAccount ok", async () => {
+    const expected = { foo: "bar" };
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(200, expected));
+    const result = await b.getServiceAccount("my-service-account");
+    expect(result).toEqual(expected);
+  });
+  test("getServiceAccount error", async () => {
+    const status = 400;
+    const data = { error: "whoops" };
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
+    await expect(b.getServiceAccount("my-service-account")).rejects.toThrow(
+      new ApiError(apiErrMsg, status, data),
+    );
+  });
+});
