@@ -9,6 +9,11 @@ the [bit.io](https://bit.io) developer API.
 npm install @bitdotioinc/node-bitdotio
 ```
 
+
+## Versioning
+
+`node-bitdotio` uses [semantic versioning](https://semver.org/).
+
 ## Usage
 
 The `node-bitdotio` package consists of a `bitdotio` SDK object which provides helpful
@@ -364,5 +369,67 @@ _Parameters_:
 - `jobId <string>`: The ID of the export job to retrieve info for.
 
 _Returns_: `ExportJob` object describing the status and metadata of an export job.
+
+<hr>
+
+#### `bitdotio.listServiceAccounts()`
+
+List metadata pertaining to service accounts the requester has created.
+
+_Returns_: Array of `ServiceAccount` objects describing service account metadata.
+
+<hr>
+
+#### `bitdotio.getServiceAccount(serviceAccountId)`
+
+Get metadata about a single service account
+
+_Parameters_:
+- `serviceAccountId <string>`: ID of the service account
+
+_Returns_: `ServiceAccount` object describing service account metadata.
+
+<hr>
+
+#### `bitdotio.createServiceAccount(serviceAccountId)`
+
+Create a new API key/database password for a given service account
+
+_Parameters_:
+- `serviceAccountId <string>`: ID of the service account
+
+_Returns_: `ApiKey` object containing newly created credentials
+
+<hr>
+
+#### `bitdotio.revokeServiceAccountKeys(serviceAccountId)`
+
+Revoke all API keys/database passwords for the given service account
+
+_Parameters_:
+
+- `serviceAccountId <string>`: ID of the service account
+
+_Returns_: `undefined`
+
+<hr>
+
+#### `bitdotio.createKey()`
+
+Create a new API key/database password with the same permissions as the requester
+
+_Returns_: `ApiKey` object containing newly created credentials
+
+<hr>
+
+#### `bitdotio.revokeKeys([apiKey])`
+
+Revoke API keys/database passwords. If `apiKey` is given, only that API key will
+be revoked. Otherwise, all API keys for the requester will be revoked.
+
+_Kwargs_:
+- `apiKey <string | undefined>`: Optional API key to revoke
+
+_Returns_: `undefined`
 
 <hr>
