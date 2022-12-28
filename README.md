@@ -9,6 +9,11 @@ the [bit.io](https://bit.io) developer API.
 npm install @bitdotioinc/node-bitdotio
 ```
 
+
+## Versioning
+
+`node-bitdotio` uses [semantic versioning](https://semver.org/).
+
 ## Usage
 
 The `node-bitdotio` package consists of a `bitdotio` SDK object which provides helpful
