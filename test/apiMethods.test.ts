@@ -427,9 +427,7 @@ describe("revokeServiceAccountKeys", () => {
   const b = bitdotio("v2_testtoken");
 
   test("revokeServiceAccountKeys ok", async () => {
-    jest
-      .spyOn(nf, "default")
-      .mockResolvedValueOnce(mockResponse(200, {}));
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(200, {}));
     const result = await b.revokeServiceAccountKeys("v2_testtoken");
     expect(result).toBeUndefined();
   });
@@ -438,6 +436,74 @@ describe("revokeServiceAccountKeys", () => {
     const data = { error: "whoops" };
     jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
     await expect(b.revokeServiceAccountKeys("v2_testtoken")).rejects.toThrow(
+      new ApiError(apiErrMsg, status, data),
+    );
+  });
+});
+
+describe("createKey", () => {
+  const b = bitdotio("v2_testtoken");
+
+  test("createKey ok", async () => {
+    const expected = { foo: "bar" };
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(200, expected));
+    const result = await b.createKey();
+    expect(result).toEqual(expected);
+  });
+  test("createKey error", async () => {
+    const status = 400;
+    const data = { error: "whoops" };
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
+    await expect(b.createKey()).rejects.toThrow(
+      new ApiError(apiErrMsg, status, data),
+    );
+  });
+});
+
+describe("revokeKeys", () => {
+  const apiKey = "v2_testtoken";
+  const b = bitdotio(apiKey);
+  const defaultHeaders = {
+    "Accept": "application/json",
+    "Authorization": `Bearer ${apiKey}`,
+    "User-Agent": getUserAgent(),
+  };
+
+  test("revokeKeys ok all", async () => {
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(200, {}));
+    const result = await b.revokeKeys();
+    expect(result).toBeUndefined();
+    expect(nf.default).toHaveBeenLastCalledWith(
+      "https://api.bit.io/v2beta/api-key/",
+      {
+        method: "DELETE",
+        headers: {
+          ...defaultHeaders,
+        },
+      },
+    );
+  });
+  test("revokeKeys ok single", async () => {
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(200, {}));
+    const result = await b.revokeKeys(apiKey);
+    expect(result).toBeUndefined();
+    expect(nf.default).toHaveBeenLastCalledWith(
+      `https://api.bit.io/v2beta/api-key/?api_key=${apiKey}`,
+      {
+        method: "DELETE",
+        headers: {
+          ...defaultHeaders,
+        },
+      },
+    );
+  });
+  test("revokeKeys error", async () => {
+    const status = 400;
+    const data = { error: "whoops" };
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
+    await expect(b.revokeKeys()).rejects.toThrow(
       new ApiError(apiErrMsg, status, data),
     );
   });

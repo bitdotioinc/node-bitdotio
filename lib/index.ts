@@ -295,6 +295,15 @@ class SDK {
       `/service-account/${serviceAccountId}/api-key/`,
     );
   }
+
+  async createKey(): Promise<ApiKey> {
+    return this._apiClient.post<ApiKey>("/api-key/");
+  }
+
+  async revokeKeys(apiKey?: string): Promise<void> {
+    const path = apiKey ? `/api-key/?api_key=${apiKey}` : "/api-key/";
+    await this._apiClient.delete(path);
+  }
 }
 
 function bitdotio(
