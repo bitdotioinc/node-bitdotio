@@ -401,3 +401,44 @@ describe("getServiceAccount", () => {
     );
   });
 });
+
+describe("createServiceAccountKey", () => {
+  const b = bitdotio("v2_testtoken");
+
+  test("createServiceAccountKey ok", async () => {
+    const expected = { foo: "bar" };
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(200, expected));
+    const result = await b.createServiceAccountKey("v2_testtoken");
+    expect(result).toEqual(expected);
+  });
+  test("createServiceAccountKey error", async () => {
+    const status = 400;
+    const data = { error: "whoops" };
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
+    await expect(b.createServiceAccountKey("v2_testtoken")).rejects.toThrow(
+      new ApiError(apiErrMsg, status, data),
+    );
+  });
+});
+
+describe("revokeServiceAccountKeys", () => {
+  const b = bitdotio("v2_testtoken");
+
+  test("revokeServiceAccountKeys ok", async () => {
+    jest
+      .spyOn(nf, "default")
+      .mockResolvedValueOnce(mockResponse(200, {}));
+    const result = await b.revokeServiceAccountKeys("v2_testtoken");
+    expect(result).toBeUndefined();
+  });
+  test("revokeServiceAccountKeys error", async () => {
+    const status = 400;
+    const data = { error: "whoops" };
+    jest.spyOn(nf, "default").mockResolvedValueOnce(mockResponse(status, data));
+    await expect(b.revokeServiceAccountKeys("v2_testtoken")).rejects.toThrow(
+      new ApiError(apiErrMsg, status, data),
+    );
+  });
+});
